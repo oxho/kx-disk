@@ -343,24 +343,24 @@ protected:
 
     // Standard palette for WinDirStat
     static constexpr std::array DefaultCushionColors = {
-        RGB(  0,   0, 255),  // Blue
-        RGB(255,   0,   0),  // Red
-        RGB(  0, 255,   0),  // Green
-        RGB(255, 255,   0),  // Yellow
-        RGB(  0, 255, 255),  // Cyan
-        RGB(255,   0, 255),  // Magenta
-        RGB(255, 170,   0),  // Orange
-        RGB(  0,  85, 255),  // Dodger Blue
-        RGB(255,   0,  85),  // Hot Pink
-        RGB( 85, 255,   0),  // Lime Green
-        RGB(170,   0, 255),  // Violet
-        RGB(  0, 255,  85),  // Spring Green
-        RGB(255,   0, 170),  // Deep Pink
-        RGB(  0, 170, 255),  // Sky Blue
-        RGB(255,  85,   0),  // Orange Red
-        RGB(  0, 255, 170),  // Aquamarine
-        RGB( 85,   0, 255),  // Indigo
-        RGB(255, 255, 255),  // White
+        RGB(  0,  63,  65),
+        RGB(222, 163,  66),
+        RGB( 84, 138, 152),
+        RGB(146, 189, 170),
+        RGB(171, 118,  84),
+        RGB( 88, 135, 117),
+        RGB(100, 124, 153),
+        RGB(223, 200, 148),
+        RGB(131, 157, 104),
+        RGB(170, 121, 116),
+        RGB( 57, 157, 162),
+        RGB(161, 138, 171),
+        RGB( 99, 140, 131),
+        RGB(193, 145, 106),
+        RGB(158, 175, 169),
+        RGB(107, 156, 189),
+        RGB(185, 173, 114),
+        RGB(228, 231, 220),
     };
 
     static constexpr int HitTestCellSize = 16;

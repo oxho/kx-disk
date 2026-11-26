@@ -62,7 +62,19 @@ void CGraphView::PaintEmptyView(CDC* pDC)
 
     const CRect rect = GetClientRect();
     pDC->FillSolidRect(rect, GetBackgroundColor());
-    DrawEmptyPlaceholder(pDC, rect);
+    if (CWinDirStatModel::Get()->HasRootItem())
+    {
+        DrawEmptyPlaceholder(pDC, rect);
+        return;
+    }
+    const int edge = ScaleForDpi(56);
+    const int center = rect.Height() / 2;
+    const HICON icon = LoadIconW(GetAppInstance(), MAKEINTRESOURCEW(IDR_MAINFRAME));
+    DrawIconEx(*pDC, (rect.Width() - edge) / 2, center - edge, icon, edge, edge, 0, nullptr, DI_NORMAL);
+    RECT label{ 0, center + ScaleForDpi(8), rect.right, rect.bottom };
+    ::SetBkMode(*pDC, TRANSPARENT);
+    ::SetTextColor(*pDC, DarkMode::SystemColor(COLOR_WINDOWTEXT));
+    ::DrawTextW(*pDC, L"选择磁盘或文件夹开始扫描", -1, &label, DT_CENTER | DT_SINGLELINE);
 }
 
 bool CGraphView::IsReadyToDraw() const

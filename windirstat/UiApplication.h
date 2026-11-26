@@ -346,7 +346,7 @@ public:
     void UpdateLayout();
     void SetDocumentTitle(const std::wstring_view docName = {})
     {
-        const std::wstring prefix = m_strTitle.empty() ? L"WinDirStat" : m_strTitle;
+        const std::wstring prefix = m_strTitle.empty() ? L"K-x盘析" : m_strTitle;
         const std::wstring t = !docName.empty() ? prefix + L" - " + std::wstring(docName) : prefix;
         if (m_hWnd) SetWindowTextW(m_hWnd, t.c_str());
     }
@@ -363,6 +363,7 @@ public:
     static std::span<const RouteEntry> Routes();
 
 protected:
+    virtual int LayoutResultFooter(int, int bottom) { return bottom; }
     virtual bool OnCreateClient() { return true; }
     virtual CCmdTarget* GetCommandTarget() const { return nullptr; }
 
@@ -465,6 +466,7 @@ inline void CFrameWnd::UpdateLayout()
         m_bottomBar->SetWindowPos(nullptr, rc.left, bottom - size.cy, rc.Width(), size.cy, SWP_NOZORDER | SWP_NOACTIVATE);
         bottom -= size.cy;
     }
+    bottom = LayoutResultFooter(rc.Width(), bottom);
     if (const auto client = GetDlgItem(WDS_PANE_ID_BASE); client != nullptr)
         client.SetWindowPos(nullptr, rc.left, top, rc.Width(), bottom - top, SWP_NOZORDER | SWP_NOACTIVATE);
 }

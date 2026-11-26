@@ -1,4 +1,14 @@
-# WinDirStat - Windows Directory Statistics
+# K-x盘析
+
+开枝工作室基于 WinDirStat 改造的 Windows 磁盘占用分析工具。
+
+扫描结束后从文件菜单保存 CSV 或 JSON 报告。再次扫描相同目录，选择“与已保存的快照对比…”并打开上次的报告，即可查看文件占用变化。结果按变化字节数降序排列，包含新增和移除的文件。
+
+结果页底部的工作室广告使用本项目的 `scan-result` 横幅配置。关闭后本次运行内隐藏。空配置、无匹配项及网络请求失败时隐藏横幅。
+
+在 Windows 运行 `build.cmd`，或从 Visual Studio Developer PowerShell 运行 `./setup/Build-Desktop.ps1` 可生成 `build/K-x盘析-x64.msi`。构建需要 C++23、ATL、Windows SDK、Visual Studio 的 Clang/LLD 以及带 UI、Util 扩展的 WiX。安装向导支持选择目录和桌面快捷方式。在全新 Windows 测试虚拟机的管理员 PowerShell 中运行 `./tests/Test-DesktopInstall.ps1 -MsiPath "./build/K-x盘析-x64.msi"`，可验证中文安装路径、快捷方式目标、中文文件扫描和卸载。
+
+## 上游 WinDirStat
 
 ## Description
 
@@ -61,7 +71,7 @@ Running from an archive does not automatically enable portable settings. Enable 
 
 The application itself is distributed under the terms of the [GPL v3 or later](windirstat/res/license.txt), but parts of the source code are also available under more lenient license terms.
 
-The logo and all derivatives are available under the terms of the Creative
+The upstream WinDirStat logo and its derivatives are available under the terms of the Creative
 Commons license [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
 
 ## Compatibility

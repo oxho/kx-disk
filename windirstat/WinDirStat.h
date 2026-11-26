@@ -46,7 +46,6 @@ public:
     static void LaunchHelp();
     void RestartApplication(bool resetPreferences = false);
 
-    static void LegacyUninstall();
     static std::tuple<ULONGLONG, ULONGLONG> GetFreeDiskSpace(const std::wstring& pszRootPath);
     static CDirStatApp* Get() { return &s_singleton; }
     std::wstring GetSaveToPath() const { return m_saveToPath; }

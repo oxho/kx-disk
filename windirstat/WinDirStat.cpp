@@ -57,7 +57,7 @@ void CDirStatApp::RestartApplication(const bool resetPreferences)
         // Only clean up registry preferences if not in portable mode
         if (!InPortableMode())
         {
-            RegDeleteTree(HKEY_CURRENT_USER, L"Software\\WinDirStat");
+            RegDeleteTree(HKEY_CURRENT_USER, L"Software\\Kaizhi\\KxDisk");
         }
 
         // Enable portable mode by creating the file
@@ -413,13 +413,12 @@ bool CDirStatApp::InitInstance()
     // Elevate non-interactive operations before rejecting protected paths or applying changes.
     // A relaunch cannot inherit standard output, so a dash save continues without elevating.
     const bool saveToStdout = m_saveToPath == L"-" || m_saveDupesToPath == L"-" || m_savePermsToPath == L"-";
-    if (autoElevate && ((hideApp && !saveToStdout) || cmdInfo.IsLegacyUninstallRequested()))
+    if (autoElevate && hideApp && !saveToStdout)
         RunElevated(m_lpCmdLine, hideApp);
 
     if (cmdInfo.IsLegacyUninstallRequested())
     {
-        LegacyUninstall();
-        // Terminate even if cleanup returned early.
+        // This fork has no legacy installer to migrate.
         ExitProcess(0);
     }
 
@@ -594,96 +593,4 @@ void CDirStatApp::OnReportBug()
 {
     ShellExecute(GetMainWindowHandle(), L"open", Localization::LookupNeutral(IDS_URL_REPORT_BUG).c_str(),
         nullptr, nullptr, SW_SHOWNORMAL);
-}
-
-void CDirStatApp::LegacyUninstall()
-{
-    namespace fs = std::filesystem;
-    std::error_code ec;
-
-    // Kill WinDirStat processes based on executable name
-    if (const SmartPointer snap(CloseHandle, CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0)); snap.IsValid())
-    {
-        const std::wstring exeName = wds::strWinDirStat;
-        PROCESSENTRY32W pe{ .dwSize = sizeof(pe) };
-        for (bool hasProcess = Process32First(snap, &pe); hasProcess; hasProcess = Process32Next(snap, &pe))
-        {
-            if (_wcsnicmp(pe.szExeFile, exeName.c_str(), exeName.size()) != 0 ||
-                pe.th32ProcessID == GetCurrentProcessId()) continue;
-
-            SmartPointer h(CloseHandle, OpenProcess(PROCESS_TERMINATE, false, pe.th32ProcessID));
-            if (h.IsValid()) TerminateProcess(h, 0);
-        }
-    }
-
-    // Collect all registry keys from HKLM and HKU
-    struct RegInfo { HKEY rootKey; std::wstring subKey; };
-    std::vector<RegInfo> regKeys;
-
-    // Add HKLM key
-    regKeys.push_back({ HKEY_LOCAL_MACHINE, wds::strUninstall });
-
-    // Add HKU keys for all users
-    if (CRegKey key; key.Open(HKEY_USERS, nullptr, KEY_ENUMERATE_SUB_KEYS) == ERROR_SUCCESS)
-    {
-        std::array<WCHAR, SECURITY_MAX_SID_STRING_CHARACTERS> sidName;
-        for (DWORD sidSize = static_cast<DWORD>(sidName.size()), i = 0;
-            key.EnumKey(i, sidName.data(), &sidSize) == ERROR_SUCCESS;
-            i++, sidSize = static_cast<DWORD>(sidName.size()))
-        {
-            regKeys.push_back({ HKEY_USERS, std::wstring(sidName.data()) + L"\\" + wds::strUninstall });
-        }
-    }
-
-    // Process all registry keys - query InstallLocation, clean up files, and delete registry keys
-    for (const auto& regInfo : regKeys)
-    {
-        CRegKey key;
-        if (key.Open(regInfo.rootKey, regInfo.subKey.c_str(), KEY_READ) != ERROR_SUCCESS) continue;
-
-        // Query InstallLocation
-        std::array<WCHAR, MAX_PATH> installPath;
-        ULONG size = static_cast<ULONG>(installPath.size());
-        if (key.QueryStringValue(L"InstallLocation", installPath.data(), &size) == ERROR_SUCCESS)
-        {
-            // Clean up installation directory
-            if (fs::path dir(installPath.data()); fs::exists(dir))
-            {
-                for (auto& file : fs::directory_iterator(dir, ec))
-                {
-                    auto fname = MakeLower(file.path().filename().wstring());
-                    if (fname.starts_with(L"wdsh") || fname.starts_with(L"wdsr") ||
-                        fname.starts_with(L"windirstat") || fname == L"uninstall.exe")
-                    {
-                        fs::remove(file, ec);
-                    }
-                }
-                if (fs::is_empty(dir, ec)) fs::remove(dir, ec);
-            }
-        }
-
-        // Delete registry key
-        SHDeleteKey(regInfo.rootKey, regInfo.subKey.c_str());
-    }
-
-    // Remove shortcuts and start menu items for all users
-    constexpr auto startMenuLocation = L"Microsoft\\Windows\\Start Menu\\Programs\\WinDirStat";
-    CComHeapPtr<wchar_t> usersPath;
-    if (SHGetKnownFolderPath(FOLDERID_UserProfiles, 0, nullptr, &usersPath) != S_OK) return;
-    if (const fs::path usersDir(static_cast<LPWSTR>(usersPath)); fs::exists(usersDir, ec))
-    {
-        for (auto& userDir : fs::directory_iterator(usersDir, ec))
-        {
-            if (!userDir.is_directory()) continue;
-
-            fs::remove(userDir.path() / L"Desktop\\WinDirStat.lnk", ec);
-            fs::remove_all(userDir.path() / L"AppData\\Roaming" / startMenuLocation, ec);
-        }
-    }
-
-    // Remove ProgramData start menu items
-    std::array<WCHAR, MAX_PATH> programData;
-    if (SHGetFolderPath(nullptr, CSIDL_COMMON_APPDATA, nullptr, 0, programData.data()) != S_OK) return;
-    fs::remove_all(fs::path(programData.data()) / startMenuLocation, ec);
-    ExitProcess(0);
 }

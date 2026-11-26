@@ -253,7 +253,7 @@ namespace Icons
     void PaintExplorerSelect(Graphics& g)
     {
         PaintDocument(g);
-        const SolidBrush cursorBrush(C(0, 102, 204));
+        const SolidBrush cursorBrush(C(30, 145, 140));
         const Point cursor[] = {
             {21, 14}, {21, 44}, {29, 36},
             {37, 48}, {43, 44}, {35, 32}, {45, 32}
@@ -298,7 +298,7 @@ namespace Icons
     void PaintProperties(Graphics& g)
     {
         PaintDocument(g);
-        const SolidBrush blueBrush(C(0, 102, 204));
+        const SolidBrush blueBrush(C(30, 145, 140));
         g.FillEllipse(&blueBrush, 26, 15, 8, 8);
         g.FillRectangle(&blueBrush, 27, 27, 6, 23);
     }
@@ -364,14 +364,14 @@ namespace Icons
 
     void PaintPause(Graphics& g)
     {
-        const SolidBrush amberBrush(C(200, 160, 0));
+        const SolidBrush amberBrush(C(213, 151, 52));
         g.FillRectangle(&amberBrush, 5, 5, 19, 54);
         g.FillRectangle(&amberBrush, 39, 5, 19, 54);
     }
 
     void PaintMagnifier(Graphics& g, const bool plus)
     {
-        const SolidBrush blueBrush(C(0, 102, 204));
+        const SolidBrush blueBrush(C(30, 145, 140));
         const Pen rimPen(Neutral(), 6);
         Pen handlePen(Neutral(), 10);
         handlePen.SetEndCap(LineCapRound);
@@ -410,7 +410,7 @@ namespace Icons
         g.DrawLine(&framePen, 4, 34, 60, 34);
         g.DrawLine(&framePen, 36, 4, 36, 34);
 
-        const SolidBrush afBrush(C(70, 120, 200)), ftBrush(C(60, 160, 90)), tmBrush(C(200, 140, 40));
+        const SolidBrush afBrush(C(0, 88, 91)), ftBrush(C(68, 154, 143)), tmBrush(C(219, 155, 52));
         g.FillRectangle(&afBrush,  8,  8, 24, 22);
         g.FillRectangle(&ftBrush, 40,  8, 16, 22);
         g.FillRectangle(&tmBrush,  8, 38, 48, 18);

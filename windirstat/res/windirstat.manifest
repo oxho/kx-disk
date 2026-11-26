@@ -27,8 +27,8 @@
             </requestedPrivileges>
         </security>
     </trustInfo>
-    <assemblyIdentity version="1.0.0.0" processorArchitecture="*" name="net.windirstat.wds" type="win32" />
-    <description>WinDirStat - Windows Directory Statistics</description>
+    <assemblyIdentity version="1.0.0.0" processorArchitecture="*" name="Kaizhi.KxDisk" type="win32" />
+    <description>K-x盘析</description>
     <dependency>
         <dependentAssembly>
             <assemblyIdentity

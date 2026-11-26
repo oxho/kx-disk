@@ -76,23 +76,32 @@ bool DarkMode::SetAppDarkMode() noexcept
 
 COLORREF DarkMode::Color(const ColorRole role)
 {
-    if (!s_darkModeEnabled) return GetSysColor(std::to_underlying(role));
+    if (!s_darkModeEnabled)
+    {
+        if (!s_highContrastEnabled)
+        {
+            if (role == ColorRole::Selection) return RGB(0, 63, 65);
+            if (role == ColorRole::Window) return RGB(246, 250, 249);
+            if (role == ColorRole::Control) return RGB(230, 240, 238);
+        }
+        return GetSysColor(std::to_underlying(role));
+    }
     switch (role)
     {
     case ColorRole::Edge: return RGB(70, 70, 70);
     case ColorRole::Light: return RGB(60, 60, 60);
     case ColorRole::Shadow: return RGB(20, 20, 20);
     case ColorRole::Desktop: return RGB(25, 25, 25);
-    case ColorRole::Control: return RGB(45, 45, 45);
+    case ColorRole::Control: return RGB(28, 54, 55);
     case ColorRole::ControlText:
     case ColorRole::MenuText:
     case ColorRole::WindowText: return RGB(220, 220, 220);
-    case ColorRole::DisabledText: return RGB(120, 120, 120);
-    case ColorRole::Selection: return RGB(0, 120, 215);
+    case ColorRole::DisabledText: return RGB(151, 175, 172);
+    case ColorRole::Selection: return RGB(13, 100, 101);
     case ColorRole::SelectionText: return RGB(255, 255, 255);
-    case ColorRole::Menu: return RGB(44, 44, 44);
-    case ColorRole::MenuBar: return RGB(30, 30, 30);
-    case ColorRole::Window: return RGB(32, 32, 32);
+    case ColorRole::Menu: return RGB(28, 54, 55);
+    case ColorRole::MenuBar: return RGB(17, 40, 42);
+    case ColorRole::Window: return RGB(16, 38, 40);
     case ColorRole::Frame: return RGB(50, 50, 50);
     }
     return GetSysColor(std::to_underlying(role));
@@ -349,7 +358,7 @@ void DarkMode::DrawFocusRect(CDC* pdc, const CRect& rc)
 
     // In dark mode, draw a dotted rectangle with a visible light color
     // Standard DrawFocusRect uses XOR which is nearly invisible on dark backgrounds
-    const CPen pen(PS_DOT, 1, RGB(120, 120, 120));
+    const CPen pen(PS_DOT, 1, RGB(151, 175, 172));
     GdiObjectSelection sopen(pdc, &pen);
     StockObjectSelection sobrush(pdc, NULL_BRUSH);
     ScopedBkMode sbm(pdc, TRANSPARENT);

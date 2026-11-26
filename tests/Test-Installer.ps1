@@ -81,7 +81,7 @@ try {
             Read-MsiTable $database 'SELECT * FROM `Property`' | ForEach-Object {
                 $baseProperties[$_.Property] = $_.Value
             }
-            $appPathsKey = 'SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\WinDirStat.exe'
+            $appPathsKey = 'SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\K-x盘析.exe'
             $appPaths = @(Read-MsiTable $database "SELECT * FROM ``Registry`` WHERE ``Key`` = '$appPathsKey'")
             if ($appPaths.Count -ne 1 -or $appPaths[0].Root -ne '2' -or $null -ne $appPaths[0].Name -or
                 $appPaths[0].Value -ne '[#File_Main]' -or $appPaths[0].Component_ -ne 'Component_Main') {

@@ -11,6 +11,7 @@
 #include "FileTabbedView.h"
 #include "Dialogs/ProgressDlg.h"
 #include "LayoutPopup.h"
+#include "StudioBanner.h"
 
 class CWdsSplitterWnd;
 class CMainFrame;
@@ -334,6 +335,10 @@ public:
     bool CreateFromResource(UINT nIDResource) override;
 
 private:
+    StudioBanner m_banner;
+    int LayoutResultFooter(int width, int bottom) override { return m_banner.Layout(width, bottom); }
+    void OnStudioOpen() { m_banner.Open(Handle()); }
+    void OnStudioDismiss() { m_banner.Dismiss(*this); }
     void LayoutWatcherFilter();
     void OnFontSizeChanged(int oldPercent, int newPercent) override;
     void BuildSplitterLayout();
@@ -384,6 +389,8 @@ inline std::span<const RouteEntry> CMainFrame::Routes()
 {
     static constexpr std::array entries
     {
+        Route::Command<&OnStudioOpen>(ID_STUDIO_OPEN),
+        Route::Command<&OnStudioDismiss>(ID_STUDIO_DISMISS),
         Route::Command<&OnConfigure>(ID_CONFIGURE),
         Route::Command<&OnViewShowFileTypes>(ID_VIEW_SHOWFILETYPES),
         Route::Command<&OnViewGroupUnregisteredTypes>(ID_VIEW_GROUP_TYPES),

@@ -6,6 +6,7 @@
 
 #include "pch.h"
 #include "CsvLoader.h"
+#include "SnapshotComparison.h"
 #include "FileTreeView.h"
 #include "FileTopControl.h"
 #include "FileSearchControl.h"
@@ -287,6 +288,13 @@ void CWinDirStatModel::OnSaveReport(const UINT commandId) const
             case ID_SAVE_PERMISSIONS: SavePermissions(*path, CFilePermsControl::Get()->GetPermItems()); break;
         }
     }).ShowModal();
+}
+
+void CWinDirStatModel::OnCompareSnapshot()
+{
+    if (!IsScanSettled()) return;
+    const auto path = ChooseReportPath(CDialog::FilePickerMode::Open);
+    if (path && IsScanSettled()) CompareSnapshot(GetRootItem(), *path);
 }
 
 void CWinDirStatModel::OnLoadResults()

@@ -253,14 +253,14 @@ public:
         L"ScanWslDisks", true, CheckboxBind(IDC_SCAN_WSL_DISKS) };
     inline static Setting<COLORREF> FileTreeColors[TREELISTCOLORCOUNT] =
     {
-        { OptionsFileTree, L"FileTreeColor0", RGB(64, 64, 140) },
-        { OptionsFileTree, L"FileTreeColor1", RGB(140, 64, 64) },
-        { OptionsFileTree, L"FileTreeColor2", RGB(64, 140, 64) },
-        { OptionsFileTree, L"FileTreeColor3", RGB(140, 140, 64) },
-        { OptionsFileTree, L"FileTreeColor4", RGB(0, 0, 255) },
-        { OptionsFileTree, L"FileTreeColor5", RGB(255, 0, 0) },
-        { OptionsFileTree, L"FileTreeColor6", RGB(0, 255, 0) },
-        { OptionsFileTree, L"FileTreeColor7", RGB(255, 255, 0) }
+        { OptionsFileTree, L"FileTreeColor0", RGB(0, 63, 65) },
+        { OptionsFileTree, L"FileTreeColor1", RGB(17, 107, 109) },
+        { OptionsFileTree, L"FileTreeColor2", RGB(211, 146, 46) },
+        { OptionsFileTree, L"FileTreeColor3", RGB(53, 147, 137) },
+        { OptionsFileTree, L"FileTreeColor4", RGB(151, 96, 40) },
+        { OptionsFileTree, L"FileTreeColor5", RGB(99, 162, 153) },
+        { OptionsFileTree, L"FileTreeColor6", RGB(64, 98, 116) },
+        { OptionsFileTree, L"FileTreeColor7", RGB(194, 173, 117) }
     };
     inline static Setting<COLORREF> TreeMapGridColor{ OptionsTreeMap, L"TreeMapGridColor", CTreeMap::GetDefaults().gridColor };
     inline static Setting<COLORREF> TreeMapHighlightColor{ OptionsTreeMap, L"TreeMapHighlightColor", RGB(255, 255, 255) };
@@ -331,7 +331,7 @@ public:
     inline static Setting<int> TreeMapMaxDepth{ OptionsTreeMap, L"TreeMapMaxDepth", 6, 1, 64 };
     inline static Setting<int> FolderHistoryCount{ OptionsDriveSelect,
         L"FolderHistoryCount", 10, 0, 100, IntegerBind(IDC_FOLDER_HISTORY_COUNT) };
-    inline static Setting<int> WindowLayout{ OptionsGeneral, L"WindowLayout", 0, 0, LayoutCount - 1 };
+    inline static Setting<int> WindowLayout{ OptionsGeneral, L"WindowLayout", 7, 0, LayoutCount - 1 };
     inline static Setting<RECT> AboutWindowRect{ OptionsGeneral, L"AboutWindowRect" };
     inline static Setting<RECT> DriveSelectWindowRect{ OptionsDriveSelect, L"WindowRect" };
     inline static Setting<RECT> CloudSelectWindowRect{ OptionsDriveSelect, L"CloudConnectionsRect" };

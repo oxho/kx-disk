@@ -758,6 +758,8 @@ void CMainFrame::OnTimer(const UINT_PTR nIDEvent)
 {
     // Exit early if shutting down
     if (nIDEvent != ID_WDS_CONTROL || m_shuttingDown) return;
+    m_banner.Refresh(*this, IsWindowVisible() && !GetFileTabbedView()->IsActive(FileTab::Watcher) &&
+        CWinDirStatModel::Get()->IsScanSettled());
     if (m_fontChangePending && ::IsWindowEnabled(m_hWnd)) OnFontSizeChanged(0, 0);
 
     if (m_cleanupQuery.valid() && WaitForSingleObject(m_cleanupThread.native_handle(), 0) == WAIT_OBJECT_0)

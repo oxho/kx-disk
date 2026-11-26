@@ -195,6 +195,8 @@ protected:
     void OnRefreshAll();
     void OnSaveReport(UINT commandId) const;
     void OnLoadResults();
+    void OnCompareSnapshot();
+    void OnUpdateCompare(CCmdUI* ui) const { ui->Enable(IsScanSettled()); }
     void OnEditCopy();
     void OnCleanupEmptyRecycleBin() const;
     void OnUpdateCentralHandler(CCmdUI* pCmdUI);
@@ -253,6 +255,8 @@ inline std::span<const RouteEntry> CWinDirStatModel::Routes()
         Route::Update<&OnUpdateCentralHandler>(ID_REFRESH_SELECTED),
         Route::Command<&OnRefreshAll>(ID_REFRESH_ALL),
         Route::Update<&OnUpdateCentralHandler>(ID_REFRESH_ALL),
+        Route::Command<&OnCompareSnapshot>(ID_COMPARE_SNAPSHOT),
+        Route::Update<&OnUpdateCompare>(ID_COMPARE_SNAPSHOT),
         Route::Command<&OnLoadResults>(ID_LOAD_RESULTS),
         Route::Command<&OnSaveReport>(ID_SAVE_DUPLICATES, ID_SAVE_RESULTS),
         Route::Update<&OnUpdateCentralHandler>(ID_SAVE_DUPLICATES, ID_SAVE_RESULTS),

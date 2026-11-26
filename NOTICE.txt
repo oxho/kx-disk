@@ -1,0 +1,62 @@
+K-x盘析
+开枝工作室基于 WinDirStat 修改了本版本的界面、品牌、快照对比和工作室横幅。
+上游项目 https://github.com/windirstat/windirstat
+Copyright © WinDirStat Team
+原作者 Bernhard Seifert、Oliver Schneider、Bryan Berns。
+完整贡献者名单见 CONTRIBUTORS.md，GPL-3.0-or-later 许可证见 LICENSE.md。
+原 WinDirStat 标志和其衍生作品采用 CC BY 3.0，见 https://creativecommons.org/licenses/by/3.0/ 。
+本版磁盘图标使用项目提供的获批素材。
+
+xxHash
+The installed xxHash-source-notice.h contains the copyright and license text
+from the exact xxHash header used to build this executable.
+
+Hilbert and Moore treemap layouts
+The partition templates and orientation rules are adapted from the Hilbert
+and Moore Treemap Layouts Prototype by the Visual Analytics Research Group
+at the Hasso Plattner Institute:
+https://github.com/varg-dev/hilbert-moore-treemap-layouts-prototype
+
+MIT License
+
+Copyright (c) 2021 Visual Analytics Research Group at the Chair for Computer
+Graphics Systems at the Hasso Plattner Institute, Potsdam
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+Version information resource
+Copyright © WinDirStat Team
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the "Software"),
+to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.

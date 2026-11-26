@@ -9,6 +9,7 @@
     [string]$EstimatedSize,
     [string]$ProductCode,
     [int]$Jobs = 0,
+    [int]$DatabaseCodepage = 65001,
     [switch]$GenerateOnly
 )
 
@@ -216,7 +217,8 @@ function Generate-WxlFiles {
 
         $culture = $msiKeys['CULTURE']
         $lcid = [int]$msiKeys['LCID']
-        $codepage = $msiKeys['CODEPAGE']
+        # All language transforms contain the Chinese product name.
+        $codepage = $DatabaseCodepage
 
         $xmlLines = @(
             '<?xml version="1.0" encoding="UTF-8"?>'

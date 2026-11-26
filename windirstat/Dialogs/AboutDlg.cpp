@@ -36,9 +36,9 @@ void CAboutDlg::WdsTabControl::Initialize()
         CLEARTYPE_NATURAL_QUALITY, FF_MODERN);
 
     // Populate text
-    m_textAbout.SetText(Localization::Format(IDS_ABOUT_ABOUT_TEXTss,
+    m_textAbout.SetText((L"K-x盘析  ·  开枝工作室\n\n" + Localization::Format(IDS_ABOUT_ABOUT_TEXTss,
         Localization::LookupNeutral(IDS_AUTHOR_EMAIL),
-        Localization::LookupNeutral(IDS_URL_WEBSITE)).c_str());
+        Localization::LookupNeutral(IDS_URL_WEBSITE))).c_str());
 
     m_textThanks.SetText(Localization::Lookup(IDS_ABOUT_THANKS_TEXT));
 

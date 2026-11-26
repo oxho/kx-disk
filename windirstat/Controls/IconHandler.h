@@ -89,7 +89,7 @@ namespace Icons
     inline COLORREF NeutralRef()
     {
         if (DarkMode::IsHighContrastActive()) return DarkMode::Color(DarkMode::ColorRole::ControlText);
-        return DarkMode::IsDarkModeActive() ? RGB(210, 210, 210) : RGB(90, 90, 90);
+        return DarkMode::IsDarkModeActive() ? RGB(163, 219, 211) : RGB(0, 63, 65);
     }
     inline Color C(const BYTE r, const BYTE g, const BYTE b, const BYTE a = 255) { return Color(a, r, g, b); }
     inline Color C(const COLORREF clr) { return C(GetRValue(clr), GetGValue(clr), GetBValue(clr)); }

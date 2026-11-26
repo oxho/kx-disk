@@ -31,10 +31,10 @@
 #define FILE_PATCH                  PRD_PATCH // patch number for version
 #define FILE_BUILD                  PRD_BUILD // build number for version
 #define TEXT_WEBSITE                https:/##/windirstat.net // website
-#define TEXT_PRODUCTNAME            WinDirStat // product's name
-#define TEXT_FILEDESC               Windows Directory Statistics (WinDirStat) // component description
+#define TEXT_PRODUCTNAME            K-x盘析 // product's name
+#define TEXT_FILEDESC               K-x盘析 // component description
 
-#define STRING_COMPANY              WinDirStat Team
+#define STRING_COMPANY              开枝工作室
 #define STRING_COPYRIGHT            "© WinDirStat Team"
-#define STRING_EXENAME              WinDirStat.exe
+#define STRING_EXENAME              K-x盘析.exe
 #define SOURCE_REPOSITORY           https://github.com/windirstat/windirstat
