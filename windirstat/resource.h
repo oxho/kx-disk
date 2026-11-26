@@ -434,6 +434,7 @@
 #define ID_COMPARE_SNAPSHOT             32971
 #define ID_STUDIO_OPEN                  32972
 #define ID_STUDIO_DISMISS               32973
+#define ID_SIMPLIFIED_CHINESE           32974
 #define IDC_START_LOGO                  8803
 #define IDD_GROWTH                      8800
 #define IDC_GROWTH_LIST                 8801
@@ -453,7 +454,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        126
-#define _APS_NEXT_COMMAND_VALUE         32974
+#define _APS_NEXT_COMMAND_VALUE         32975
 #define _APS_NEXT_CONTROL_VALUE         1205
 #define _APS_NEXT_SYMED_VALUE           126
 #endif

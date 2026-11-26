@@ -164,7 +164,7 @@ void COptions::PostProcessPersistedSettings()
     if (const auto& languages = Localization::GetLanguageList();
         !languages.contains(static_cast<LANGID>(LanguageId)))
     {
-        const LANGID specified = GetUserDefaultLangID();
+        const LANGID specified = LANGIDFROMLCID(LocaleNameToLCID(L"zh", LOCALE_ALLOW_NEUTRAL_NAMES));
         const LANGID generic = MAKELANGID(PRIMARYLANGID(specified), SUBLANG_NEUTRAL);
         LanguageId =
             languages.contains(specified) ? specified :

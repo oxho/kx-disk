@@ -313,6 +313,7 @@ protected:
     void OnUpdateToolsTab(CCmdUI* pCmdUI) const;
     void UpdateToolsMenu(MenuRef menu) const;
     void OnViewWindowLayout();
+    void OnSimplifiedChinese();
     void OnConfigure();
     void OnDestroy();
     LRESULT OnTaskButtonCreated(WPARAM, LPARAM);
@@ -391,6 +392,7 @@ inline std::span<const RouteEntry> CMainFrame::Routes()
     {
         Route::Command<&OnStudioOpen>(ID_STUDIO_OPEN),
         Route::Command<&OnStudioDismiss>(ID_STUDIO_DISMISS),
+        Route::Command<&OnSimplifiedChinese>(ID_SIMPLIFIED_CHINESE),
         Route::Command<&OnConfigure>(ID_CONFIGURE),
         Route::Command<&OnViewShowFileTypes>(ID_VIEW_SHOWFILETYPES),
         Route::Command<&OnViewGroupUnregisteredTypes>(ID_VIEW_GROUP_TYPES),

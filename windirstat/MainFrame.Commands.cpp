@@ -924,6 +924,16 @@ void CMainFrame::OnUpdateViewFontSize(CCmdUI* pCmdUI) const
     pCmdUI->SetRadio(COptions::FontSizePercent == percent);
 }
 
+void CMainFrame::OnSimplifiedChinese()
+{
+    const auto language = LANGIDFROMLCID(LocaleNameToLCID(L"zh", LOCALE_ALLOW_NEUTRAL_NAMES));
+    if (COptions::LanguageId == language) return;
+    if (ShowMessageBox(*this, L"切换为简体中文需要重新启动盘析。现在重启吗？", wds::strWinDirStat, MB_YESNO | MB_ICONQUESTION) != IDYES) return;
+    COptions::LanguageId = language;
+    PersistedSetting::WritePersistedProperties();
+    CDirStatApp::Get()->RestartApplication();
+}
+
 void CMainFrame::OnConfigure()
 {
     const bool restart = CSettingsSheet::ShowSettings();
