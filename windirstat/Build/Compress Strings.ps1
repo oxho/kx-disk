@@ -32,5 +32,9 @@ Write-Host "Generating language resource"
 foreach ($Source in "$Path\license.txt", "$Path\lang_combined.txt") {
     $Target = [System.IO.Path]::ChangeExtension($Source, '.bin')
     if ([System.IO.File]::GetLastWriteTime($Target) -ge [System.IO.File]::GetLastWriteTime($Source)) { continue }
-    makecab /D CompressionType=LZX /D CompressionMemory=21 $Source $Target | Out-Null
+    Push-Location -LiteralPath $Path
+    try {
+        makecab /D CompressionType=LZX /D CompressionMemory=21 (Split-Path $Source -Leaf) (Split-Path $Target -Leaf) | Out-Null
+        if ($LASTEXITCODE -ne 0 -or !(Test-Path -LiteralPath $Target)) { throw "Failed to compress $Source" }
+    } finally { Pop-Location }
 }
