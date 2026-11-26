@@ -14,6 +14,8 @@ public:
 private:
     struct Placement
     {
+        std::wstring creative, campaign, version;
+        bool test{};
         std::wstring title;
         std::wstring target;
         std::vector<BYTE> asset;
@@ -26,6 +28,9 @@ private:
     std::future<Placement> m_request;
     ULONGLONG m_nextCheck{}, m_nextNetworkCheck{};
     bool m_online = true;
-    std::wstring m_target;
+    void Report(const wchar_t* type) const;
+    std::wstring m_target, m_creative, m_campaign, m_version, m_exposure;
+    bool m_test{}, m_impressed{};
+    ULONGLONG m_visibleSince{};
     bool m_dismissed{}, m_discard{};
 };

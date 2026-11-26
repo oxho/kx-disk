@@ -7,15 +7,20 @@ jobs:
     runs-on: windows-2025
     steps:
       - uses: actions/checkout@v4
+        with:
+          path: 中文 构建
       - uses: microsoft/setup-msbuild@v2
       - name: Install WiX
         run: |
           dotnet tool install --global wix --version 5.0.2
           wix extension add --global WixToolset.UI.wixext/5.0.2
           wix extension add --global WixToolset.Util.wixext/5.0.2
-      - run: ./setup/Build-Desktop.ps1
+      - working-directory: 中文 构建
+        run: ./setup/Build-Desktop.ps1
+      - working-directory: 中文 构建
+        run: ./tests/Test-DesktopInstall.ps1 -MsiPath (Get-Item ./build/*.msi).FullName
       - uses: actions/upload-artifact@v4
         with:
           name: Windows-x64
           if-no-files-found: error
-          path: build/*.msi
+          path: 中文 构建/build/*.msi

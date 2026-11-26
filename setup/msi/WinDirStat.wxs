@@ -33,6 +33,7 @@
       <ComponentRef Id="Component_Main"/>
       <ComponentRef Id="Component_ContextMenuEntry"/>
       <ComponentRef Id="Component_DesktopShortcut"/>
+      <ComponentRef Id="Component_StartShortcut"/>
       <ComponentRef Id="Component_AddToPath"/>
     </Feature>
     <!-- Properties for Desktop Shortcut Detection -->
@@ -59,6 +60,7 @@
         <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="2"/>
         <Control Id="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Transparent="yes" NoPrefix="yes" Text="!(loc.OptionsDlgDescription)"/>
         <Control Id="Title" Type="Text" X="15" Y="6" Width="210" Height="15" Transparent="yes" NoPrefix="yes" Text="{\WixUI_Font_Title}!(loc.OptionsDlgHeaderTitle)"/>
+        <Control Id="StartShortcutCheckBox" Type="CheckBox" Height="18" Width="295" X="26" Y="121" Text="创建开始菜单快捷方式" Property="START_SHORTCUT" CheckBoxValue="1"/>
         <Control Id="DesktopShortcutCheckBox" Type="CheckBox" Height="18" Width="295" X="26" Y="58" Text="!(loc.OptionsDlgDesktopShortcut)" Property="DESKTOP_SHORTCUT" CheckBoxValue="1"/>
         <Control Id="ContextMenuEntryCheckBox" Type="CheckBox" Height="18" Width="295" X="26" Y="79" Text="!(loc.OptionsDlgContextMenuEntry)" Property="CONTEXTMENU_ENTRY" CheckBoxValue="1"/>
         <Control Id="AddToPathCheckBox" Type="CheckBox" Height="18" Width="295" X="26" Y="100" Text="!(loc.OptionsDlgAddToPath)" Property="ADD_TO_PATH" CheckBoxValue="1"/>
@@ -86,9 +88,7 @@
     <DirectoryRef Id="INSTALLFOLDER">
       <Component Id="Component_Main" Guid="{92764AD4-DBDF-41C0-BDF2-D8682FA00A76}">
         <File KeyPath="yes" Id="File_Main" Source="$(var.ProductBinariesDir)\$(var.WinDirStatExe)" Name="K-x盘析.exe">
-          <Shortcut Id="File_Main_Shortcut" Directory="ProgramMenuFolder" WorkingDirectory="INSTALLFOLDER" Name="K-x盘析">
-            <ShortcutProperty Key="System.AppUserModel.ID" Value="K-x盘析"/>
-          </Shortcut>
+
         </File>
         <RegistryValue Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\K-x盘析.exe"
                        Value="[#File_Main]" Type="string"/>
@@ -116,6 +116,10 @@
           <RegistryValue Value="&quot;[INSTALLFOLDER]K-x盘析.exe&quot; %1" Type="string"/>
         </RegistryKey>
       </RegistryKey>
+    </Component>
+    <Component Id="Component_StartShortcut" Directory="ProgramMenuFolder" Guid="*" Condition="START_SHORTCUT">
+      <Shortcut Id="StartShortcut" Name="K-x盘析" Target="[INSTALLFOLDER]K-x盘析.exe" WorkingDirectory="INSTALLFOLDER"/>
+      <RegistryValue Root="HKCU" Key="SOFTWARE\Kaizhi\KxDisk" Name="StartShortcut" Type="integer" Value="1" KeyPath="yes"/>
     </Component>
     <Component Id="Component_DesktopShortcut" Directory="DesktopFolder" Guid="{20F0757D-FF46-48DC-8117-E56CFB2E92DE}" Condition="DESKTOP_SHORTCUT">
       <Shortcut Id="ConfigDesktopShortcut" Name="K-x盘析" WorkingDirectory="INSTALLFOLDER" Target="[INSTALLFOLDER]K-x盘析.exe"/>

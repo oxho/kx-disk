@@ -3,7 +3,10 @@
 #include <winhttp.h>
 #include <shlwapi.h>
 #include <sensapi.h>
-#include "BannerConfig.h"
+#include <winrt/Windows.Data.Json.h>
+#include "Version.h"
+#pragma comment(lib, "windowsapp.lib")
+using namespace winrt::Windows::Data::Json;
 
 #pragma comment(lib, "winhttp.lib")
 #pragma comment(lib, "sensapi.lib")
@@ -21,7 +24,7 @@ namespace
             parts.dwHostNameLength && !parts.dwUserNameLength && !parts.dwPasswordLength;
     }
 
-    std::vector<BYTE> Download(HINTERNET session, const std::wstring& url, size_t limit)
+    std::vector<BYTE> Download(HINTERNET session, const std::wstring& url, size_t limit, DWORD* statusOut = nullptr)
     {
         URL_COMPONENTS parts{};
         if (!SplitHttps(url, parts)) return {};
@@ -37,7 +40,9 @@ namespace
             !WinHttpSendRequest(request, nullptr, 0, nullptr, 0, 0, 0) || !WinHttpReceiveResponse(request, nullptr)) return {};
         DWORD status{}, length = sizeof(status);
         if (!WinHttpQueryHeaders(request, WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER, nullptr,
-            &status, &length, nullptr) || status != 200) return {};
+            &status, &length, nullptr)) return {};
+        if (statusOut) *statusOut = status;
+        if (status != 200) return {};
         std::vector<BYTE> bytes;
         std::array<BYTE, 8192> block;
         DWORD count{};
@@ -77,21 +82,41 @@ StudioBanner::Placement StudioBanner::Fetch()
     SmartPointer session(WinHttpCloseHandle, WinHttpOpen(L"KxDisk/1", WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
         WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0));
     if (!session || !WinHttpSetTimeouts(session, 2500, 2500, 2500, 3000)) return {};
-    const auto data = Download(session, L"https://8.137.20.181/v1/apps/2dbcd68cb497/ads", 65536);
+    DWORD status{};
+    auto data = Download(session, L"https://8.137.20.181/v2/apps/2dbcd68cb497/ads", 65536, &status);
+    if (status == 404) data = Download(session, L"https://8.137.20.181/v1/apps/2dbcd68cb497/ads", 65536);
     if (data.empty()) return {};
     const auto input = reinterpret_cast<const char*>(data.data());
     const int length = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, input, static_cast<int>(data.size()), nullptr, 0);
     if (!length) return {};
     std::wstring json(length, L'\0');
     if (!MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, input, static_cast<int>(data.size()), json.data(), length)) return {};
-    auto fields = studio::BannerConfigReader(json).Read();
-    if (!fields) return {};
+    winrt::init_apartment(winrt::apartment_type::multi_threaded);
+    struct ApartmentGuard { ~ApartmentGuard(){ winrt::uninit_apartment(); } } guard;
+    const auto config = JsonObject::Parse(json);
+    if (config.GetNamedString(L"app_id") != L"2dbcd68cb497") return {};
     Placement result;
-    result.title = fields->at(L"title");
-    result.target = fields->at(L"target");
+    std::wstring asset;
+    for (const auto& row : config.GetNamedArray(L"placements"))
+    {
+        const auto ad = row.GetObject();
+        if (ad.GetNamedString(L"slot") != L"scan-result" || ad.GetNamedString(L"kind") != L"banner") continue;
+        result.title = ad.GetNamedString(L"title");
+        result.target = ad.GetNamedString(L"target");
+        asset = ad.GetNamedString(L"asset", L"");
+        result.creative = ad.GetNamedString(L"creative_id", L"");
+        result.campaign = ad.GetNamedString(L"campaign_id", L"");
+        if (ad.HasKey(L"creative_version")) {
+            const auto value = ad.GetNamedValue(L"creative_version");
+            result.version = value.ValueType() == JsonValueType::String ? value.GetString() : value.Stringify();
+        }
+        result.test = ad.GetNamedBoolean(L"is_test", false);
+        break;
+    }
+    if (result.title.empty()) return {};
     URL_COMPONENTS target{};
     if (!SplitHttps(result.target, target)) return {};
-    if (const auto& asset = fields->at(L"asset"); !asset.empty())
+    if (!asset.empty())
     {
         result.asset = Download(session, asset, 2 * 1024 * 1024);
         if (result.asset.empty()) return {};
@@ -99,22 +124,63 @@ StudioBanner::Placement StudioBanner::Fetch()
     return result;
 }
 
+namespace {
+    std::wstring NewEventId() {
+        GUID id{};
+        if (FAILED(CoCreateGuid(&id))) return {};
+        wchar_t text[39]{};
+        StringFromGUID2(id, text, 39);
+        return std::wstring(text + 1, 36);
+    }
+}
+void StudioBanner::Report(const wchar_t* type) const
+{
+    if (m_creative.empty() || m_campaign.empty() || m_version.empty() || m_exposure.empty()) return;
+    const auto send = [creative=m_creative, campaign=m_campaign, version=m_version, exposure=m_exposure, test=m_test, type] {
+        try {
+            winrt::init_apartment();
+            struct Guard { ~Guard(){winrt::uninit_apartment();} } guard;
+            JsonObject e;
+            auto put = [&](const wchar_t* key, const std::wstring& value){ e.Insert(key, JsonValue::CreateStringValue(value)); };
+            put(L"event_id", NewEventId()); put(L"exposure_id",exposure); put(L"event_type",type);
+            put(L"slot",L"scan-result"); put(L"creative_id",creative); put(L"creative_version",version);
+            put(L"campaign_id",campaign); put(L"platform",L"Windows");
+            put(L"app_version",std::format(L"{}.{}.{}",PRD_MAJVER,PRD_MINVER,PRD_PATCH));
+            e.Insert(L"is_test",JsonValue::CreateBooleanValue(test));
+            auto bytes=winrt::to_string(e.Stringify());
+            SmartPointer session(WinHttpCloseHandle, WinHttpOpen(L"KxDisk", WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,nullptr,nullptr,0));
+            if (!session || !WinHttpSetTimeouts(session,2500,2500,2500,3000)) return;
+            SmartPointer con(WinHttpCloseHandle, WinHttpConnect(session,L"8.137.20.181",443,0));
+            if (!con) return;
+            SmartPointer req(WinHttpCloseHandle, WinHttpOpenRequest(con,L"POST",L"/v2/apps/2dbcd68cb497/events",nullptr,nullptr,nullptr,WINHTTP_FLAG_SECURE));
+            DWORD disabled=WINHTTP_DISABLE_REDIRECTS|WINHTTP_DISABLE_COOKIES|WINHTTP_DISABLE_AUTHENTICATION;
+            if (req && WinHttpSetOption(req,WINHTTP_OPTION_DISABLE_FEATURE,&disabled,sizeof(disabled)) && WinHttpSendRequest(req,L"Content-Type: application/json",DWORD(-1),bytes.data(),static_cast<DWORD>(bytes.size()),static_cast<DWORD>(bytes.size()),0))
+                WinHttpReceiveResponse(req,nullptr);
+        } catch (...) {}
+    };
+    try { std::thread(send).detach(); } catch (...) {}
+}
+
 void StudioBanner::Hide(CMainFrame& frame)
 {
     if (m_target.empty()) return;
     m_target.clear();
+    m_exposure.clear();
+    m_visibleSince = 0;
     for (const HWND control : {m_title, m_close, m_image}) ::ShowWindow(control, SW_HIDE);
     frame.UpdateLayout();
 }
 
 void StudioBanner::Dismiss(CMainFrame& frame)
 {
+    Report(L"dismiss");
     m_dismissed = true;
     Hide(frame);
 }
 
 void StudioBanner::Open(HWND owner) const
 {
+    if (!m_target.empty()) Report(L"click");
     if (!m_target.empty()) ShellExecuteW(owner, L"open", m_target.c_str(), nullptr, nullptr, SW_SHOWNORMAL);
 }
 
@@ -146,6 +212,15 @@ void StudioBanner::Refresh(CMainFrame& frame, bool eligible)
         Hide(frame);
         return;
     }
+    if (!m_impressed && !m_exposure.empty()) {
+        RECT banner{}, window{}, clipped{};
+        GetWindowRect(m_title,&banner); GetWindowRect(frame.Handle(),&window);
+        const auto area = [](RECT r){return int64_t(r.right-r.left)*(r.bottom-r.top);};
+        if (!IsWindowVisible(m_title) || IsIconic(frame.Handle()) || area(banner)<=0 ||
+            !IntersectRect(&clipped,&banner,&window) || area(clipped)*2 < area(banner)) m_visibleSince=0;
+        else if (!m_visibleSince) m_visibleSince=now;
+        else if (now-m_visibleSince>=1000) { m_impressed=true; Report(L"impression"); }
+    }
     if (m_request.valid())
     {
         if (m_request.wait_for(std::chrono::seconds(0)) != std::future_status::ready) return;
@@ -171,6 +246,10 @@ void StudioBanner::Refresh(CMainFrame& frame, bool eligible)
         const HBITMAP old = reinterpret_cast<HBITMAP>(SendMessageW(m_image, STM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(next)));
         if (old && old != m_bitmap.get()) DeleteObject(old);
         m_bitmap.reset(next);
+        if (m_exposure.empty() || m_creative != placement.creative || m_version != placement.version || m_campaign != placement.campaign || m_test != placement.test) {
+            m_exposure=NewEventId(); m_impressed=false; m_visibleSince=0;
+        }
+        m_creative=placement.creative; m_campaign=placement.campaign; m_version=placement.version; m_test=placement.test;
         m_target = std::move(placement.target);
         SetWindowTextW(m_title, (L"开枝工作室广告  ·  " + placement.title).c_str());
         for (const HWND button : {m_title, m_close}) ShowWindow(button, SW_SHOWNA);
