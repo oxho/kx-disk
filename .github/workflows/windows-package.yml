@@ -17,10 +17,37 @@ jobs:
           wix extension add --global WixToolset.Util.wixext/5.0.2
       - working-directory: 中文 构建
         run: ./setup/Build-Desktop.ps1
-      - working-directory: 中文 构建
-        run: ./tests/Test-DesktopInstall.ps1 -MsiPath (Get-Item ./build/*.msi).FullName
       - uses: actions/upload-artifact@v4
         with:
           name: Windows-x64
           if-no-files-found: error
           path: 中文 构建/build/*.msi
+
+  install-check:
+    needs: package
+    runs-on: windows-2025
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            tests
+            installer
+      - uses: actions/download-artifact@v4
+        with:
+          name: Windows-x64
+          path: candidate
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: 45760310548
+          name: Windows-x64
+          path: baseline
+      - name: Verify first launch and clean uninstall
+        shell: powershell
+        run: ./tests/Test-DesktopInstall.ps1 -MsiPath (Get-Item ./candidate/*.msi).FullName
+      - name: Verify shortcut choices and upgrade
+        shell: powershell
+        run: ./tests/installer/Test-Upgrade.ps1 -Current (Get-Item ./candidate/*.msi).FullName -Previous (Get-Item ./baseline/*.msi).FullName
