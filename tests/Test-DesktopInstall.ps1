@@ -29,8 +29,13 @@ try {
     Invoke-Installer "/i `"$msi`" /qn /norestart INSTALLFOLDER=`"$install`" ENABLE_SHORTCUT=1 DISABLE_CONTEXTMENU=1"
     $installed = $true
     $shortcut = @($shortcuts | Where-Object { Test-Path -LiteralPath $_ })
-    if (!$shortcut.Count -or (New-Object -ComObject WScript.Shell).CreateShortcut($shortcut[0]).TargetPath -ne $exe) {
-        throw 'Desktop shortcut target does not match the selected Chinese installation directory.'
+    if (!$shortcut.Count) { throw "Missing desktop shortcut. Checked: $shortcuts" }
+    $shell = New-Object -ComObject Shell.Application
+    $folder = $shell.NameSpace((Split-Path $shortcut[0]))
+    $actual = $folder.ParseName((Split-Path $shortcut[0] -Leaf)).GetLink.Path
+    $fs = New-Object -ComObject Scripting.FileSystemObject
+    if (!$actual -or $fs.GetFile($actual).ShortPath -ne $fs.GetFile($exe).ShortPath) {
+        throw "Desktop shortcut resolves to '$actual'; installed executable is '$exe'."
     }
     $app = Start-Process -FilePath $exe -ArgumentList "/saveto `"$report`" `"$source`"" -PassThru
     if (!$app.WaitForExit(90000)) { $app.Kill(); throw 'Scan timed out.' }
