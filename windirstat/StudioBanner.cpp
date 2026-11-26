@@ -83,8 +83,11 @@ StudioBanner::Placement StudioBanner::Fetch()
         WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0));
     if (!session || !WinHttpSetTimeouts(session, 2500, 2500, 2500, 3000)) return {};
     DWORD status{};
-    auto data = Download(session, L"https://8.137.20.181/v2/apps/2dbcd68cb497/ads", 65536, &status);
-    if (status == 404) data = Download(session, L"https://8.137.20.181/v1/apps/2dbcd68cb497/ads", 65536);
+    wchar_t test[2]{};
+    const bool testing = GetEnvironmentVariableW(L"KX_AD_TEST", test, 2) == 1 && test[0] == L'1';
+    auto endpoint = std::format(L"https://8.137.20.181/v2/apps/2dbcd68cb497/ads?app_version={}.{}.{}&platform=Windows{}", PRD_MAJVER, PRD_MINVER, PRD_PATCH, testing ? L"&test=1" : L"");
+    auto data = Download(session, endpoint, 65536, &status);
+    if (status == 404 && !testing) data = Download(session, L"https://8.137.20.181/v1/apps/2dbcd68cb497/ads", 65536);
     if (data.empty()) return {};
     const auto input = reinterpret_cast<const char*>(data.data());
     const int length = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, input, static_cast<int>(data.size()), nullptr, 0);
