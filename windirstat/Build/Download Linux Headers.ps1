@@ -17,7 +17,8 @@ try {
     foreach ($Architecture in 'x86_64', 'aarch64') {
         $Repository = "https://dl-cdn.alpinelinux.org/alpine/latest-stable/main/$Architecture"
         Invoke-WebRequest -Uri "$Repository/APKINDEX.tar.gz" -OutFile $Archive -UseBasicParsing -TimeoutSec 60
-        $Index = (& $Tar -xzOf $Archive APKINDEX) -join "`n"
+        Push-Location $Temporary
+        try { $Index = (& $Tar -xzOf (Split-Path $Archive -Leaf) APKINDEX) -join "`n" } finally { Pop-Location }
         if ($LASTEXITCODE -ne 0) { throw "Cannot read Linux headers index for $Architecture." }
 
         # Replace generated headers so obsolete files cannot satisfy includes.
@@ -38,11 +39,19 @@ try {
             Invoke-WebRequest -Uri "$Repository/$Package-$Version.apk" -OutFile $Archive `
                 -UseBasicParsing -TimeoutSec 60
             if ($Package -eq 'linux-headers') {
-                & $Tar -xzmf $Archive -C $Include --strip-components 2 usr/include
+                Push-Location $Include
+                try {
+                    $relativeArchive = Resolve-Path -LiteralPath $Archive -Relative
+                    & $Tar -xzmf $relativeArchive --strip-components 2 usr/include
+                } finally { Pop-Location }
             } else {
                 $CppInclude = Join-Path $Include 'cpp'
                 New-Item -ItemType Directory -Path $CppInclude -Force | Out-Null
-                & $Tar -xzmf $Archive -C $CppInclude --strip-components 4 usr/include/c++
+                Push-Location $CppInclude
+                try {
+                    $relativeArchive = Resolve-Path -LiteralPath $Archive -Relative
+                    & $Tar -xzmf $relativeArchive --strip-components 4 usr/include/c++
+                } finally { Pop-Location }
             }
             if ($LASTEXITCODE -ne 0) { throw "Cannot extract $Package headers for $Architecture." }
         }

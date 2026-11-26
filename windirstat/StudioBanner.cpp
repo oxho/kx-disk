@@ -155,10 +155,16 @@ void StudioBanner::Report(const wchar_t* type) const
             if (!session || !WinHttpSetTimeouts(session,2500,2500,2500,3000)) return;
             SmartPointer con(WinHttpCloseHandle, WinHttpConnect(session,L"8.137.20.181",443,0));
             if (!con) return;
+            for (int attempt=0; attempt < 2; ++attempt) {
             SmartPointer req(WinHttpCloseHandle, WinHttpOpenRequest(con,L"POST",L"/v2/apps/2dbcd68cb497/events",nullptr,nullptr,nullptr,WINHTTP_FLAG_SECURE));
             DWORD disabled=WINHTTP_DISABLE_REDIRECTS|WINHTTP_DISABLE_COOKIES|WINHTTP_DISABLE_AUTHENTICATION;
             if (req && WinHttpSetOption(req,WINHTTP_OPTION_DISABLE_FEATURE,&disabled,sizeof(disabled)) && WinHttpSendRequest(req,L"Content-Type: application/json",DWORD(-1),bytes.data(),static_cast<DWORD>(bytes.size()),static_cast<DWORD>(bytes.size()),0))
-                WinHttpReceiveResponse(req,nullptr);
+                if (WinHttpReceiveResponse(req,nullptr)) {
+                    DWORD code{}, len=sizeof(code);
+                    if (WinHttpQueryHeaders(req,WINHTTP_QUERY_STATUS_CODE|WINHTTP_QUERY_FLAG_NUMBER,nullptr,&code,&len,nullptr) && code < 500 && code != 429) break;
+                }
+            if (attempt==0) Sleep(750);
+            }
         } catch (...) {}
     };
     try { std::thread(send).detach(); } catch (...) {}
@@ -219,7 +225,7 @@ void StudioBanner::Refresh(CMainFrame& frame, bool eligible)
         RECT banner{}, window{}, clipped{};
         GetWindowRect(m_title,&banner); GetWindowRect(frame.Handle(),&window);
         const auto area = [](RECT r){return int64_t(r.right-r.left)*(r.bottom-r.top);};
-        if (!IsWindowVisible(m_title) || IsIconic(frame.Handle()) || area(banner)<=0 ||
+        if (GetForegroundWindow() != frame.Handle() || !IsWindowVisible(m_title) || IsIconic(frame.Handle()) || area(banner)<=0 ||
             !IntersectRect(&clipped,&banner,&window) || area(clipped)*2 < area(banner)) m_visibleSince=0;
         else if (!m_visibleSince) m_visibleSince=now;
         else if (now-m_visibleSince>=1000) { m_impressed=true; Report(L"impression"); }
